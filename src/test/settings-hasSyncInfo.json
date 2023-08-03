@@ -1,0 +1,17 @@
+{
+    "profile": "foo",
+    "bucket": "bar",
+    "include": [
+        "**"
+    ],
+    "exclude": [
+        ".*"
+    ],
+    "synced": [
+        {
+            "localTime": 1690659627,
+            "name": "foo.txt",
+            "remoteTime": 1690659627
+        }
+    ]
+}

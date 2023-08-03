@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "profile": {
+            "type": "string",
+            "default": "default",
+            "minLength": 1,
+            "title": "AWS profile in credentials file"
+        },
+        "bucket": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 63,
+            "title": "AWS S3 bucket name"
+        },
+        "folder": {
+            "type": "string",
+            "minLength": 1,
+            "title": "AWS S3 bucket folder to sync with (optional; default is root of bucket)"
+        },
+        "include": {
+            "type": "array",
+            "title": "Glob patterns to include files in sync",
+            "items": {
+                "type": "string",
+                "minLength": 1,
+                "title": "Glob pattern to include files in sync"
+            }
+        },
+        "exclude": {
+            "type": "array",
+            "title": "Glob patterns to exclude files from sync",
+            "items": {
+                "type": "string",
+                "minLength": 1,
+                "title": "Glob pattern to exclude files from sync"
+            }
+        },
+        "synced": {
+            "type": "array",
+            "title": "Auto-generated sync information. Do not modify.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "localTime": {
+                        "type": "number",
+                        "minLength": 1,
+                        "title": "Modified time of local workspace file (seconds since epoch)"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Relative file path (from workspace root)"
+                    },
+                    "remoteTime": {
+                        "type": "number",
+                        "minLength": 1,
+                        "title": "Modified time of S3 bucket file (seconds since epoch)"
+                    }
+                },
+                "required": [
+                    "localTime",
+                    "name",
+                    "remoteTime"
+                ]
+            }
+        }
+    },
+    "required": [
+        "profile",
+        "bucket",
+        "include",
+        "exclude"
+    ]
+}

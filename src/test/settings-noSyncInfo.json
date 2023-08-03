@@ -1,0 +1,10 @@
+{
+    "profile": "foo",
+    "bucket": "bar",
+    "include": [
+        "**"
+    ],
+    "exclude": [
+        ".*"
+    ]
+}

@@ -1,0 +1,16 @@
+.vscode/**
+images/**
+releases/**
+src/**
+
+.eslintrc.json
+.gitignore
+.vscodeignore
+jest.config.js
+tsconfig.json
+
+**/*.map
+**/*.ts
+**/*.test.ts
+**/*.vsix
+**/.simple-s3-sync.json

@@ -1,0 +1,33 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+        {
+            "type": "node",
+            "name": "Run Jest Tests",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": [
+                "--runInBand",
+                "--watchAll=false"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+            }
+        }
+    ]
+}
