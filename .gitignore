@@ -3,3 +3,4 @@ node_modules/**
 dist/**
 releases/**
 **/*.vsix
+.simple-s3-sync.json
