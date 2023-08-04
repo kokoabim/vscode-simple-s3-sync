@@ -12,6 +12,10 @@ Sync VS Code local workspace files and directories with an AWS S3 bucket (or a s
 
 Either the S3 bucket root is used or an S3 bucket subfolder if `folder` is specified in settings.
 
+### Including and excluding files and directories ###
+
+In the workspace settings file, specify [glob patterns ](https://code.visualstudio.com/docs/editor/glob-patterns) to `include` and `exclude`.
+
 ### Deleting... _it's trash, really_ ###
 
 When files are "deleted", they are moved under a `.simple-s3-sync.trash` folder in a new timestamped subfolder, named in the format of `yyyy-MM-dd_HH-mm-ss`, with files' relative last modified times, in the same format, appended to filenames along with original file extensions. (In a future release, use of a trash folder will be configurable with extension settings.) Files deleted locally are stored in a local trash folder while files deleted on S3 are stored in a S3 trash folder.
@@ -24,7 +28,18 @@ When syncing, files that do not match the `include` and `exclude` settings are n
 
 # Requirements
 
-To keep this extension small, the AWS Command Line Interface is used. Download it [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+- Read and write permissions to an AWS S3 bucket.
+- AWS Command Line Interface (AWS CLI) installed — [download here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+- AWS credentials stored — `~/.aws/credentials` or `%UserProfile%\.aws\credentials`
+
+# Getting Started
+
+1. Satisfy requirements.
+2. Open a VS Code workspace (i.e. a folder).
+3. Create workspace settings file manually or using `S5: Create Simple S3 Sync workspace settings file` command.
+4. Configure workspace settings file.
+5. Perform a sync using one of three sync types described above via `S5`-prefixed commands. Most likely the `S5: Sync between local workspace and S3 bucket` command.
+    - **Note:** Before the actual sync occurs, you'll be able to review what will be performed in an output channel.
 
 # Extension Settings
 
@@ -58,7 +73,11 @@ The `.simple-s3-sync.json` workspace settings file and `.simple-s3-sync.trash` f
 
 # Release Notes
 
-First release.
+Minor changes.
+
+### 2023-08-04 — 0.0.2
+- Added Getting Started section to README.md.
+- Minor changes to default `exclude` values.
 
 ### 2023-08-02 — 0.0.1
 - Initial release of something functional.

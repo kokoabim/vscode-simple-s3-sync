@@ -23,8 +23,6 @@ export class SimpleS3SyncSettings {
         if (!creatingNew) {
             if (!this.profile) { throw new Error("Profile is required."); }
             else if (!this.bucket) { throw new Error("Bucket is required."); }
-
-            this.exclude.push(...SimpleS3SyncSettings._alwaysExclude);
         }
 
         if (this.folder && (this.folder.startsWith('/') || this.folder.endsWith('/'))) {
@@ -57,14 +55,17 @@ export class SimpleS3SyncSettings {
             exclude: [
                 "**/.DS_Store",
                 "**/.git/**",
+                "**/bin/**",
+                "**/bower_components/**",
                 "**/desktop.ini",
-                "**/node_modules/**"
+                "**/node_modules/**",
+                "**/obj/**"
             ]
         }, true);
     }
 
     excludeGlob(): string | undefined {
-        return this.toGlobPattern(this.exclude);
+        return this.toGlobPattern(this.exclude.concat(SimpleS3SyncSettings._alwaysExclude));
     }
 
     includeGlob(): string | undefined {

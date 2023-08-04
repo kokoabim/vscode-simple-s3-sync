@@ -1,7 +1,7 @@
 {
     "name": "ss3sync",
     "publisher": "spencerjames",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Simple Amazon Simple Storage Service syncing (\"S5\" for short) between local workspace and S3 bucket.",
     "displayName": "Simple S3 Sync (S5)",
     "author": {
