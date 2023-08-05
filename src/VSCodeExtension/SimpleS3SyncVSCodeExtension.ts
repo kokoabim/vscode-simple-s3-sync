@@ -1,16 +1,17 @@
 import * as vscode from "vscode";
-import { Aws, IAws } from '../Aws/Aws';
+import { Aws, IAws } from "../Aws/Aws";
 import { SimpleS3SyncSettings } from "./SimpleS3SyncSettings";
 import { VSCodeCommand } from "./VSCodeCommand";
 import { VSCodeExtension } from "./VSCodeExtension";
 import { FileInfo } from "../Utils/FileInfo";
-import { AwsS3ListObject } from '../Aws/AwsS3ListObject';
+import { AwsS3ListObject } from "../Aws/AwsS3ListObject";
 import { FileToSyncInfo } from "./FileToSyncInfo";
 import { FileSyncReason } from "./FileSyncReason";
 import { FileSyncDirection } from "./FileSyncDirection";
-import { SyncContext } from './SyncContext';
-import '../Extensions/Array.extensions';
-import '../Extensions/Date.extensions';
+import { SyncContext } from "./SyncContext";
+import "../Extensions/Array.extensions";
+import "../Extensions/Date.extensions";
+import "../Extensions/String.extensions";
 
 /**
  * Simple S3 Sync (S5) VS Code extension
@@ -21,7 +22,7 @@ export class SimpleS3SyncVSCodeExtension extends VSCodeExtension {
     private _workspaceTrashFolder: string | undefined;
 
     private constructor(context: vscode.ExtensionContext) {
-        super(context);
+        super(context, "S5");
 
         this.addCommands(
             this.createCreateSettingsFileCommand(),
@@ -104,7 +105,7 @@ export class SimpleS3SyncVSCodeExtension extends VSCodeExtension {
         });
         if (shouldNotWriteFile) { return; }
 
-        await this.fileSystem.writeFile(this._workspaceSettingsFile!, SimpleS3SyncSettings.new(), true);
+        await this.fileSystem.writeFile(this._workspaceSettingsFile!, SimpleS3SyncSettings.new(), true, false);
 
         await vscode.workspace.openTextDocument(this._workspaceSettingsFile!).then(doc => vscode.window.showTextDocument(doc));
     }
@@ -457,7 +458,7 @@ export class SimpleS3SyncVSCodeExtension extends VSCodeExtension {
         }
 
         if (writeWorkspaceSettingsFile) {
-            await this.fileSystem.writeFile(this._workspaceSettingsFile!, syncContext.settings, true).then(() => {
+            await this.fileSystem.writeFile(this._workspaceSettingsFile!, syncContext.settings, true, false).then(() => {
             }, (err: any) => {
                 this.outputChannel.appendLine(`\n🔴 Error writing Simple S3 Sync workspace settings file: ${err.message}`);
             });
@@ -546,6 +547,17 @@ export class SimpleS3SyncVSCodeExtension extends VSCodeExtension {
         return results;
     }
 
+    private s3ObjectContentTypeByFileExtension(fileName: string): string | undefined {
+        const fileExt = this.fileSystem.extension(fileName, false);
+        if (!fileExt) { return undefined; }
+
+        const contentTypeByFileExtensions = this.configurationProperty<any>("s3ObjectContentTypeByFileExtension");
+        if (!contentTypeByFileExtensions || contentTypeByFileExtensions.length === 0) { return undefined; }
+
+        const ct2fe = contentTypeByFileExtensions.find((ct2fe: any) => fileExt.ignoreCaseEquals(ct2fe.extension));
+        return ct2fe ? ct2fe.contentType : undefined;
+    }
+
     private uploadWorkspaceFiles(filesToSync: FileToSyncInfo[], timestamp: string, aws: IAws): Promise<FileToSyncInfo>[] {
         return filesToSync.map(fileToSync => {
             return new Promise<FileToSyncInfo>(async (resolve, reject) => {
@@ -564,7 +576,9 @@ export class SimpleS3SyncVSCodeExtension extends VSCodeExtension {
                 });
                 if (!fileDoesNotExistOrWasMovedToTrash) { reject(); return; }
 
-                await aws.s3PutObject(fileToSync.name, this.fileSystem.resolvePaths(this.workspaceFolder!.uri.path, fileToSync.name)).then(async putObjectResult => {
+                const fileContentType = this.s3ObjectContentTypeByFileExtension(fileToSync.name);
+
+                await aws.s3PutObject(fileToSync.name, this.fileSystem.resolvePaths(this.workspaceFolder!.uri.path, fileToSync.name), fileContentType).then(async putObjectResult => {
                     await aws.s3HeadObject(fileToSync.name).then(headObjectResult => {
                         fileToSync.remoteTime = headObjectResult.modifiedSeconds;
                         resolve(fileToSync);

@@ -4,6 +4,7 @@ import { FileInfo } from "../Utils/FileInfo";
 import { FileSystem, IFileSystem } from "../Utils/FileSystem";
 
 export abstract class VSCodeExtension {
+    protected configuration: vscode.WorkspaceConfiguration | undefined;
     protected context: vscode.ExtensionContext;
     protected fileSystem: IFileSystem = new FileSystem();
 
@@ -11,9 +12,11 @@ export abstract class VSCodeExtension {
     protected outputChannel: vscode.OutputChannel;
     protected workspaceFolder: vscode.WorkspaceFolder | undefined;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext, configurationSection: string | undefined = undefined) {
         this.context = context;
-        this.outputChannel = vscode.window.createOutputChannel(context.extension.packageJSON.displayName);
+
+        if (configurationSection) { this.configuration = vscode.workspace.getConfiguration(configurationSection); }
+        this.outputChannel = vscode.window.createOutputChannel(this.packageProperty("displayName"));
     }
 
     protected addCommands(...commands: VSCodeCommand[]) {
@@ -24,7 +27,7 @@ export abstract class VSCodeExtension {
 
     protected isWorkspaceReady(): boolean {
         if (!this.isWorkspaceOpen) {
-            vscode.window.showErrorMessage("A workspace must be open to use Simple S3 Sync.");
+            vscode.window.showWarningMessage(`A workspace must be open to use ${this.packageProperty("displayName")}.`);
             return false;
         }
 
@@ -32,6 +35,15 @@ export abstract class VSCodeExtension {
         return true;
     }
 
+    protected configurationProperty<T>(name: string): T | undefined {
+        if (!this.configuration) { return undefined; }
+        try { return this.configuration.get<T>(name); }
+        catch { return undefined; }
+    }
+
+    protected packageProperty(name: string): any {
+        return this.context.extension.packageJSON[name];
+    }
 
     protected workspacePath(...relativePath: string[]): string {
         return vscode.Uri.joinPath(this.workspaceFolder!.uri, ...relativePath).path;

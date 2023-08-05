@@ -69,11 +69,13 @@ The `.simple-s3-sync.json` workspace settings file and `.simple-s3-sync.trash` f
 
 - Trash folders (`.simple-s3-sync.trash`) both created locally (workspace) and remotely (S3) are not truncated. User is required to clean them out (for now).
 - Empty subdirectories are left when deleting local workspace files. User is required to delete them if not needed anymore (for now).
-- While the user will be shown what all will be deleted, uploaded and/ or downloaded _before_ a sync is run, there is currently no way to abort a sync once started. (I guess other than closing VS Code itself.)
+- While the user will be shown what all will be deleted, uploaded and/or downloaded _before_ a sync is run, there is currently no way to abort a sync once started. (I guess other than closing VS Code itself.)
 
-# Release Notes
+# Changelog / Release Notes
 
-Minor changes.
+### 2023-08-04 — 0.0.3
+- Added extension settings to set S3 object content-type by file extension on uploads. This addresses an issue with the default content-type being used for static websites hosted on S3.
+- Fixed issue with `folder` setting being written as `null`.
 
 ### 2023-08-04 — 0.0.2
 - Added Getting Started section to README.md.

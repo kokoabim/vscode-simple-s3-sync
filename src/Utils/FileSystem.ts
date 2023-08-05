@@ -11,7 +11,7 @@ export interface IFileSystem {
     deleteFile(path: string): Promise<void>;
     exists(path: string): Promise<boolean>;
     existsSync(path: string): boolean;
-    extension(filePath: string): string;
+    extension(filePath: string, includeLeadingDot?: boolean): string;
     fileName(filePath: string, withoutExtension?: boolean): string;
     getFileInfos(path: string): Promise<FileInfo[]>;
     getStats(path: string): Promise<fss.Stats>;
@@ -21,7 +21,7 @@ export interface IFileSystem {
     readFileAsJson(filePath: string): Promise<any>;
     resolvePaths(...paths: string[]): string;
     tempFileName(): string;
-    writeFile(filePath: string, dataOrObject: any, overwrite?: boolean): Promise<void>;
+    writeFile(filePath: string, dataOrObject: any, overwrite?: boolean, includeNullUndefinedOnStringify?: boolean): Promise<void>;
     writeTempFile(data?: string): Promise<string>;
 }
 
@@ -54,8 +54,10 @@ export class FileSystem implements IFileSystem {
         return fss.existsSync(path);
     }
 
-    extension(filePath: string): string {
-        return path.extname(filePath);
+    extension(filePath: string, includeLeadingDot: boolean = true): string {
+        const fileExt = path.extname(filePath);
+        if (!fileExt) { return ''; }
+        return includeLeadingDot ? fileExt : fileExt.substring(1);
     }
 
     fileName(filePath: string, withoutExtension: boolean = false): string { return path.basename(filePath, withoutExtension ? this.extension(filePath) : ''); }
@@ -123,11 +125,13 @@ export class FileSystem implements IFileSystem {
         return path.join(tmpdir(), crypto.randomUUID());
     }
 
-    async writeFile(filePath: string, dataOrObject: any, overwrite: boolean = false): Promise<void> {
+    async writeFile(filePath: string, dataOrObject: any, overwrite: boolean = false, includeNullUndefinedOnStringify: boolean = true): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             if (!overwrite && (await this.exists(filePath))) { reject(`File already exists: ${filePath}`); return; }
 
-            const data = typeof dataOrObject === "string" ? dataOrObject : JSON.stringify(dataOrObject, null, 4);
+            const data = typeof dataOrObject === "string" ? dataOrObject : JSON.stringify(dataOrObject, (key, val) => {
+                if (includeNullUndefinedOnStringify || (val !== null && val !== undefined)) { return val; }
+            }, 4);
 
             const dirName = path.dirname(filePath);
             if (!(await this.exists(dirName))) { await this.makeDir(dirName); }

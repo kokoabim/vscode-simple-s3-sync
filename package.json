@@ -1,7 +1,7 @@
 {
     "name": "ss3sync",
     "publisher": "spencerjames",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Simple Amazon Simple Storage Service syncing (\"S5\" for short) between local workspace and S3 bucket.",
     "displayName": "Simple S3 Sync (S5)",
     "author": {
@@ -30,7 +30,104 @@
     ],
     "main": "./dist/extension.js",
     "contributes": {
-        "jsonValidation":[
+        "configuration": {
+            "title": "Simple S3 Sync (S5)",
+            "properties": {
+                "S5.useS3ObjectContentTypes": {
+                    "description": "Sets the S3 object content-type on upload",
+                    "type": "boolean",
+                    "default": true
+                },
+                "S5.s3ObjectContentTypeByFileExtension": {
+                    "description": "S3 object content-type to file extension mapping. If the file extension is not listed, the default content-type is used, which is \"application/octet-stream\".",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "extension": {
+                                "type": "string",
+                                "description": "File extension (e.g. \"txt\")"
+                            },
+                            "contentType": {
+                                "type": "string",
+                                "description": "S3 object content-type (e.g. \"text/plain\")"
+                            }
+                        },
+                        "required": [
+                            "extension",
+                            "contentType"
+                        ]
+                    },
+                    "default": [
+                        {
+                            "extension": "txt",
+                            "contentType": "text/plain"
+                        },
+                        {
+                            "extension": "html",
+                            "contentType": "text/html"
+                        },
+                        {
+                            "extension": "css",
+                            "contentType": "text/css"
+                        },
+                        {
+                            "extension": "js",
+                            "contentType": "application/javascript"
+                        },
+                        {
+                            "extension": "json",
+                            "contentType": "application/json"
+                        },
+                        {
+                            "extension": "xml",
+                            "contentType": "application/xml"
+                        },
+                        {
+                            "extension": "pdf",
+                            "contentType": "application/pdf"
+                        },
+                        {
+                            "extension": "png",
+                            "contentType": "image/png"
+                        },
+                        {
+                            "extension": "jpg",
+                            "contentType": "image/jpeg"
+                        },
+                        {
+                            "extension": "jpeg",
+                            "contentType": "image/jpeg"
+                        },
+                        {
+                            "extension": "gif",
+                            "contentType": "image/gif"
+                        },
+                        {
+                            "extension": "svg",
+                            "contentType": "image/svg+xml"
+                        },
+                        {
+                            "extension": "ico",
+                            "contentType": "image/x-icon"
+                        },
+                        {
+                            "extension": "csv",
+                            "contentType": "text/csv"
+                        },
+                        {
+                            "extension": "tsv",
+                            "contentType": "text/tab-separated-values"
+                        },
+                        {
+                            "extension": "md",
+                            "contentType": "text/markdown"
+                        }
+                    ]
+                }
+            }
+        },
+        "jsonValidation": [
             {
                 "fileMatch": ".simple-s3-sync.json",
                 "url": "./schema/simple-s3-sync.schema.json"

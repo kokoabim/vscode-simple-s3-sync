@@ -15,7 +15,7 @@ export interface IAws {
     s3ListObjects(): Promise<AwsS3ListObject[]>;
     s3MoveObject(sourceKey: string, destinationKey: string): Promise<boolean>;
     s3ObjectExists(key: string): Promise<boolean>;
-    s3PutObject(key: string, sourceFile: string): Promise<boolean>;
+    s3PutObject(key: string, sourceFile: string, contentType?: string): Promise<boolean>;
     s3WriteObject(key: string, content: string): Promise<boolean>;
 }
 
@@ -150,10 +150,10 @@ export class Aws implements IAws {
         });
     }
 
-    async s3PutObject(key: string, sourceFile: string): Promise<boolean> {
+    async s3PutObject(key: string, sourceFile: string, contentType: string | undefined = undefined): Promise<boolean> {
         if (!(await this._fileSystem.exists(sourceFile))) { throw new Error(`File not found: ${sourceFile}`); }
 
-        return await Aws._executor.execute(`aws s3api put-object --body '${sourceFile}' --bucket ${this.bucket} --key '${this.s3Key(key)}' --profile ${this.profile}`).then(result => {
+        return await Aws._executor.execute(`aws s3api put-object --body '${sourceFile}' --bucket ${this.bucket} --key '${this.s3Key(key)}' --profile ${this.profile} ${contentType ? `--content-type '${contentType}'` : ''}`).then(result => {
             if (result.exitCode !== 0) { throw new Error(result.stderr); }
             return true;
         }, err => {
